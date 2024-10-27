@@ -1,24 +1,28 @@
 import { IGame } from "../types/interfaces/game";
 
-export const games: IGame[] = [];
+export let games: IGame[] = [];
+
+export const removeGame = (roomId: string) => {
+    games = games.filter((room) => room.roomId !== roomId);
+};
 
 export const addTurnIndex = (indexPlayer: number, gameId: string): number => {
-    const game = games.find((game) => game.roomId === gameId);
-    if (!game) {
-        console.log(`Game not found: ${gameId}`);
+    const currentGame = games.find((game) => game.roomId === gameId);
+
+    if (!currentGame) {
         return -1;
     }
 
-    const currentPlayerIndex = game.roomUsers.findIndex((user) => user.index === indexPlayer);
+    const currentPlayerIndex = currentGame.roomUsers.findIndex((user) => user.index === indexPlayer);
     let nextPlayerIndex = currentPlayerIndex + 1;
 
-    if (nextPlayerIndex >= game.roomUsers.length) {
+    if (nextPlayerIndex >= currentGame.roomUsers.length) {
         nextPlayerIndex = 0;
     }
 
-    game.roomUsers.forEach((user) => {
-        user.turnIndex = game.roomUsers[nextPlayerIndex].index;
+    currentGame.roomUsers.forEach((user) => {
+        user.turnIndex = currentGame.roomUsers[nextPlayerIndex].index;
     });
 
-    return game.roomUsers[nextPlayerIndex].index;
+    return currentGame.roomUsers[nextPlayerIndex].index;
 };

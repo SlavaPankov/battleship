@@ -4,7 +4,8 @@ import { create } from "../models/player";
 import { EWebSocketMessages } from "../types/enums/messages";
 import { IPlayer } from "../types/interfaces/player";
 import { WebSocketServer } from "ws";
-import { addShips, showWinners } from "../models/game";
+import { addShips, attack, showWinners } from "../models/game";
+import { games } from "src/db/games";
 
 const webSocketServer = new WebSocketServer({
     port: 3000,
@@ -55,6 +56,12 @@ webSocketServer.on('connection', (server: WebSocket) => {
                 const { ships } = parsedPlayerData;
 
                 addShips(playerData.name, ships);
+
+                break;
+            case EWebSocketMessages.ATTACK:
+                console.log(message);
+
+                attack(playerData, parsedPlayerData);
 
                 break;
             default:
