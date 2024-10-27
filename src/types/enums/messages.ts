@@ -8,4 +8,5 @@ export enum EWebSocketMessages {
     SINGLE_PLAY = 'single_play',
     UPDATE_ROOM = 'update_room',
     UPDATE_WINNERS = 'update_winners',
+    CREATE_GAME = 'create_game',
 }

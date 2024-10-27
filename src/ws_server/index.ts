@@ -1,10 +1,9 @@
-import { createRoom } from "src/models/room";
+import { addUserToRoom, createRoom } from "src/models/room";
 import { rooms } from "../db/rooms";
 import { create } from "../models/player";
 import { EWebSocketMessages } from "../types/enums/messages";
 import { IPlayer } from "../types/interfaces/player";
 import { WebSocketServer } from "ws";
-import { players } from "src/db/players";
 import { showWinners } from "src/models/game";
 
 const webSocketServer = new WebSocketServer({
@@ -43,6 +42,13 @@ webSocketServer.on('connection', (server: WebSocket) => {
                 console.log(message);
 
                 createRoom(playerData);
+                break;
+            case EWebSocketMessages.ADD_USER_TO_ROOM:
+                console.log(message);
+
+                const { indexRoom } = parsedPlayerData;
+                addUserToRoom(indexRoom, playerData.name);
+
                 break;
             default:
                 break;
