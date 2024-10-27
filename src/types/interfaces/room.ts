@@ -1,3 +1,4 @@
+import { IField } from "./Field";
 import { IPlayer } from "./player";
 
 export interface IRoomPlayer {
@@ -5,7 +6,10 @@ export interface IRoomPlayer {
     index: number;
     shipsLeft: number; 
     turnIndex?: number;
-    userFields?: [];
+    userFields?: {
+        firstUserField: IField[][];
+        secondUserField: IField[][];
+    };
 }
 
 export interface IRoom {
