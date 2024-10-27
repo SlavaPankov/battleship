@@ -6,4 +6,6 @@ export enum EWebSocketMessages {
     ATTACK = 'attack',
     RANDOM_ATTACK = 'randomAttack',
     SINGLE_PLAY = 'single_play',
+    UPDATE_ROOM = 'update_room',
+    UPDATE_WINNERS = 'update_winners',
 }

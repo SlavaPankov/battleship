@@ -1,6 +1,15 @@
 import { IPlayer } from "./player";
 
+export interface IRoomPlayer {
+    name: string;
+    index: number;
+    shipsLeft: number; 
+    turnIndex?: number;
+    userFields?: [];
+}
+
 export interface IRoom {
     roomId: string;
-    roomUsers: IPlayer[];
+    roomUsers: IRoomPlayer[];
+    gameState?: boolean;
 }
