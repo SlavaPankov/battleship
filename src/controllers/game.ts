@@ -3,10 +3,11 @@ import { players } from "../db/players"
 import { IWinner } from "../types/interfaces/winner"
 import { IShip } from "../types/interfaces/ship";
 import { addTurnIndex, games, removeGameById } from "../db/games";
-import { IField } from "../types/interfaces/Field";
+import { IField } from "../types/interfaces/field";
 import { IPlayer } from "../types/interfaces/player";
 import { IAttack } from "../types/interfaces/attack";
 import { rooms } from "../db/rooms";
+import { EAttackStatus } from "src/types/enums/attackStatus";
 
 export const findGame = (gameId: string, indexPlayer: number): boolean => {
     const game = games.find(({ roomId }) => roomId === gameId);
@@ -180,7 +181,7 @@ const handleShipDestruction = (field: IField, gameId: string, currentPlayer: num
         notifyPlayersOfAttack(gameId, EWebSocketMessages.ATTACK, {
             position: { x, y },
             currentPlayer,
-            status: "missed",
+            status: EAttackStatus.MISS,
         });
     });
 
@@ -188,7 +189,7 @@ const handleShipDestruction = (field: IField, gameId: string, currentPlayer: num
         notifyPlayersOfAttack(gameId, EWebSocketMessages.ATTACK, {
             position: { x, y },
             currentPlayer,
-            status: "killed",
+            status: EAttackStatus.KILLED,
         });
     });
 };
@@ -266,7 +267,7 @@ export const executePlayerAttack = (attacker: IPlayer, attackData: IAttack) => {
         cell.leftSide--;
 
         if (cell.leftSide === 0) {
-            opponent.shipsLeft--;
+            --opponent.shipsLeft;
 
             handleShipDestruction(cell, gameId, targetPlayer.index);
 
@@ -275,24 +276,24 @@ export const executePlayerAttack = (attacker: IPlayer, attackData: IAttack) => {
 
                 return;
             }
-
-            const nextPlayerIndex = game.roomUsers.find(({ index }) => index !== Number(indexPlayer))?.index;
-
-            if (nextPlayerIndex !== undefined) {
-                processTurnForPlayer(nextPlayerIndex, gameId);
-            }
+        } else {
+            notifyPlayersOfAttack(gameId, EWebSocketMessages.ATTACK, {
+                position: { y, x },
+                currentPlayer: targetPlayer.index,
+                status: EAttackStatus.SHOT,
+            });
         }
 
-        notifyPlayersOfAttack(gameId, EWebSocketMessages.ATTACK, {
-            position: { y, x },
-            currentPlayer: targetPlayer.index,
-            status: "shot",
-        });
+        if (players.get(attacker.name)?.isBot) {
+            setTimeout(() => {
+                randomizeAttack(attacker, gameId);
+            },  1500);
+        }
     } else {
         notifyPlayersOfAttack(gameId, EWebSocketMessages.ATTACK, {
             position: { y, x },
             currentPlayer: targetPlayer.index,
-            status: "missed",
+            status: EAttackStatus.MISS,
         });
 
         const nextPlayerIndex = game.roomUsers.find((ru) => ru.index === +indexPlayer)?.index;
@@ -304,6 +305,7 @@ export const executePlayerAttack = (attacker: IPlayer, attackData: IAttack) => {
 };
 
 export const randomizeAttack = (attacker: IPlayer, gameId: string) => {
+    console.log(attacker);
     const game = games.find(({ roomId }) => roomId === gameId);
 
     if (!game) {
@@ -335,8 +337,8 @@ export const randomizeAttack = (attacker: IPlayer, gameId: string) => {
     });
 
     if (availableCells.length > 0) {
-        const randomCell = availableCells[Math.floor(Math.random() * availableCells.length)];
-        executePlayerAttack(attacker, { x: randomCell[0], y: randomCell[1], gameId, indexPlayer: opponent.index });
+        const [x, y] = availableCells[Math.floor(Math.random() * availableCells.length)];
+        executePlayerAttack(attacker, { x, y, gameId, indexPlayer: opponent.index });
     }
 
     for (let y = 0; y < 10; y++) {
@@ -365,8 +367,8 @@ export const randomizeAttack = (attacker: IPlayer, gameId: string) => {
     );
 
     if (unattachedCells.length > 0) {
-        const randomCell = unattachedCells[Math.floor(Math.random() * unattachedCells.length)];
+        const { x, y } = unattachedCells[Math.floor(Math.random() * unattachedCells.length)];
 
-        executePlayerAttack(attacker, { gameId, x: randomCell.x, y: randomCell.y, indexPlayer: attacker.index });
+        executePlayerAttack(attacker, { gameId, x, y, indexPlayer: attacker.index });
     }
 };

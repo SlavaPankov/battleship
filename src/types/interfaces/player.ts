@@ -11,4 +11,5 @@ export interface IPlayer {
     winner?: number;
     ready?: boolean;
     ships?: IShip[];
+    isBot?: boolean;
 }

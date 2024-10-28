@@ -39,10 +39,9 @@ export const createRoom = (player: IPlayer): IRoom => {
 
 export const addUserToRoom = (roomId: string, playerName: string) => {
     const currentPlayer = players.get(playerName);
-    const currentRoom = rooms.find((room) => room.roomId === roomId);
+    const currentRoom = rooms.find(({ roomId }) => roomId === roomId);
 
     if (!currentPlayer || !currentRoom) {
-        console.log('Player or room not found. Add user to room now.');
         return;
     }
 

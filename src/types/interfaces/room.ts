@@ -1,5 +1,4 @@
-import { IField } from "./Field";
-import { IPlayer } from "./player";
+import { IField } from "./field";
 
 export interface IRoomPlayer {
     name: string;
