@@ -4,7 +4,7 @@ import { create } from "../models/player";
 import { EWebSocketMessages } from "../types/enums/messages";
 import { IPlayer } from "../types/interfaces/player";
 import { WebSocketServer } from "ws";
-import { addShips, attack, showWinners } from "../models/game";
+import { addShips, attack, randomAttack, showWinners } from "../models/game";
 import { games } from "src/db/games";
 
 const webSocketServer = new WebSocketServer({
@@ -62,6 +62,12 @@ webSocketServer.on('connection', (server: WebSocket) => {
                 console.log(message);
 
                 attack(playerData, parsedPlayerData);
+
+                break;
+            case EWebSocketMessages.RANDOM_ATTACK:
+                console.log(message);
+
+                randomAttack(playerData, parsedPlayerData.gameId);
 
                 break;
             default:
