@@ -1,11 +1,10 @@
-import { addUserToRoom, createRoom } from "../models/room";
+import { addUserToRoom, createRoom } from "../controllers/room";
 import { rooms } from "../db/rooms";
-import { create } from "../models/player";
+import { create } from "../controllers/player";
 import { EWebSocketMessages } from "../types/enums/messages";
 import { IPlayer } from "../types/interfaces/player";
 import { WebSocketServer } from "ws";
-import { addShips, attack, randomAttack, showWinners } from "../models/game";
-import { games } from "src/db/games";
+import { assignShipsToPlayer, executePlayerAttack, randomizeAttack, getWinnersList, findGame } from "../controllers/game";
 
 const webSocketServer = new WebSocketServer({
     port: 3000,
@@ -35,7 +34,7 @@ webSocketServer.on('connection', (server: WebSocket) => {
 
                 playerData = create(parsedPlayerData.name, parsedPlayerData.password, server);
                 server.send(JSON.stringify({ type: EWebSocketMessages.REG, data: JSON.stringify(playerData), id: 0 }));
-                server.send(JSON.stringify({ type: EWebSocketMessages.UPDATE_WINNERS, data: JSON.stringify(showWinners()), id: 0 }));
+                server.send(JSON.stringify({ type: EWebSocketMessages.UPDATE_WINNERS, data: JSON.stringify(getWinnersList()), id: 0 }));
                 server.send(JSON.stringify({ type: EWebSocketMessages.UPDATE_ROOM, data: JSON.stringify(rooms), id: 0 }));
                 break;
 
@@ -55,19 +54,23 @@ webSocketServer.on('connection', (server: WebSocket) => {
                 console.log(message);
                 const { ships } = parsedPlayerData;
 
-                addShips(playerData.name, ships);
+                assignShipsToPlayer(playerData.name, ships);
 
                 break;
             case EWebSocketMessages.ATTACK:
                 console.log(message);
 
-                attack(playerData, parsedPlayerData);
+                const { gameId, indexPlayer } = parsedPlayerData;
+
+                if (findGame(gameId, indexPlayer)) {
+                    executePlayerAttack(playerData, parsedPlayerData);
+                }
 
                 break;
             case EWebSocketMessages.RANDOM_ATTACK:
                 console.log(message);
 
-                randomAttack(playerData, parsedPlayerData.gameId);
+                randomizeAttack(playerData, parsedPlayerData.gameId);
 
                 break;
             default:

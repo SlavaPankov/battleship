@@ -2,7 +2,7 @@ import { IGame } from "../types/interfaces/game";
 
 export let games: IGame[] = [];
 
-export const removeGame = (roomId: string) => {
+export const removeGameById = (roomId: string) => {
     games = games.filter((room) => room.roomId !== roomId);
 };
 

@@ -4,7 +4,7 @@ import { IPlayer } from "../types/interfaces/player";
 import { removeRoom, rooms } from "../db/rooms";
 import { players } from "../db/players";
 import { EWebSocketMessages } from "../types/enums/messages";
-import { createGame } from "./game";
+import { initiateGame } from "./game";
 
 export const createRoom = (player: IPlayer): IRoom => {
     const roomId = randomUUID();
@@ -68,7 +68,7 @@ export const addUserToRoom = (roomId: string, playerName: string) => {
         currentRoom.gameState = true;
 
         currentRoom.roomUsers.forEach((player) => {
-            createGame(player.name, currentRoom.roomId);
+            initiateGame(player.name, currentRoom.roomId);
         });
 
         removeRoom(roomId);
